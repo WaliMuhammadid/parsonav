@@ -1,0 +1,7 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/Presenova_Final/venv312/Scripts/python.exe",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/Presenova_Final",
+    "${workspaceFolder}/Presenova_Final/venv312/Lib/site-packages"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "venvPath": "Presenova_Final",
+  "venv": "venv312",
+  "extraPaths": [
+    "Presenova_Final",
+    "Presenova_Final/venv312/Lib/site-packages"
+  ]
+}

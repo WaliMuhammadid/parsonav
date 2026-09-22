@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: fyp-presenova
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python -m spacy download en_core_web_sm"
+    startCommand: "gunicorn -k gthread --threads 8 -w 1 --bind 0.0.0.0:$PORT main:app"
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: FIREBASE_PROJECT_ID
+        value: "fyp-firebase-df1f6"
+      - key: FIREBASE_CREDENTIALS_JSON
+        sync: false   # Paste your Firebase service account JSON here in Render dashboard
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: ALLOW_VERCEL_PREVIEWS
+        value: "true"
+      - key: CORS_ORIGINS
+        value: "http://localhost:3000,http://localhost:5173,https://presenova.vercel.app"
+      - key: ENABLE_GRAMMAR_CHECK
+        value: "1"
+      - key: LANGUAGETOOL_API_URL
+        value: "https://api.languagetool.org/v2"
+      # Optional: uncomment and set for premium LanguageTool (higher rate limits)
+      # - key: LANGUAGETOOL_API_KEY
+      #   sync: false
+      # - key: LANGUAGETOOL_USERNAME
+      #   sync: false
+    healthCheckPath: /api/health
+

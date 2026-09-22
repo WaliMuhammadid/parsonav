@@ -1,0 +1,461 @@
+
+=======================================================
+FILE: routes/presentation_rewriter.py
+=======================================================
+Line 43:
+return _error(f'File too large. Maximum allowed size is {MAX_UPLOAD_BYTES // (1024 * 1024)} MB.', 413)
+-------------------------------------------------------
+Line 84:
+return _error(f'File too large. Maximum allowed size is {MAX_UPLOAD_BYTES // (1024 * 1024)} MB.', 413)
+        file_storage = request.files.get('file')
+-------------------------------------------------------
+Line 87:
+return _error('No file uploaded. Send multipart/form-data with field "file".', 400)
+        original_filename = file_storage.filename or ''
+-------------------------------------------------------
+Line 90:
+return _error('No file selected.', 400)
+        if not is_allowed_for_rewrite(original_filename):
+-------------------------------------------------------
+Line 92:
+return _error(
+                f'File type "{get_extension(original_filename)}" cannot be rewritten. '
+                'Only .pptx is supported for text-preserving rewrites. PDFs are analysis-only.', 400
+            )
+-------------------------------------------------------
+Line 101:
+return _error(f"Invalid mode '{mode}'. Valid modes: {', '.join(sorted(VALID_MODES))}", 400)
+        if tone not in VALID_TONES:
+-------------------------------------------------------
+Line 103:
+return _error(f"Invalid tone '{tone}'. Valid tones: {', '.join(sorted(VALID_TONES))}", 400)
+-------------------------------------------------------
+Line 177:
+return _error(str(exc), 400)
+    except RuntimeError as exc:
+-------------------------------------------------------
+Line 180:
+return _error('Presentation processing is temporarily unavailable. Please try again.', 502)
+    except Exception:
+-------------------------------------------------------
+Line 183:
+return _error('Unexpected presentation processing error.', 500)
+    finally:
+-------------------------------------------------------
+Line 200:
+return _error(f'File too large. Maximum allowed size is {MAX_UPLOAD_BYTES // (1024 * 1024)} MB.', 413)
+        file_storage = request.files.get('file')
+-------------------------------------------------------
+Line 203:
+return _error('No file uploaded. Send multipart/form-data with field "file".', 400)
+        original_filename = file_storage.filename or ''
+-------------------------------------------------------
+Line 206:
+return _error('No file selected.', 400)
+        if not is_allowed_for_analysis(original_filename):
+-------------------------------------------------------
+Line 208:
+return _error('Unsupported file type. Please upload a .pptx or .pdf file.', 400)
+-------------------------------------------------------
+Line 222:
+return _error(str(exc), 400)
+    except Exception:
+-------------------------------------------------------
+Line 225:
+return _error('Presentation analysis failed.', 500)
+    finally:
+-------------------------------------------------------
+Line 247:
+return _error('File not found or has expired. Please resubmit the presentation.', 404)
+    except Exception:
+-------------------------------------------------------
+Line 250:
+return _error('Download failed.', 500)
+-------------------------------------------------------
+Line 293:
+return jsonify({
+                'success': False,
+                'message': 'No progress information available for this file.',
+            }), 404
+-------------------------------------------------------
+Line 316:
+return _error('Presentation file not found. Please rewrite first.', 404)
+-------------------------------------------------------
+Line 338:
+return _error('Presentation file not found. Please rewrite first.', 404)
+-------------------------------------------------------
+Line 343:
+return _error('Report data not available for PDF generation.', 404)
+-------------------------------------------------------
+Line 357:
+return _error('PDF report generation failed.', 500)
+-------------------------------------------------------
+
+=======================================================
+FILE: routes/question_generator.py
+=======================================================
+Line 37:
+return _error(
+        f'File too large. Maximum allowed size is {MAX_UPLOAD_BYTES // (1024 * 1024)} MB.',
+        413,
+    )
+-------------------------------------------------------
+Line 82:
+return _error(
+                f'File too large. Maximum allowed size is {MAX_UPLOAD_BYTES // (1024 * 1024)} MB.',
+                413,
+            )
+-------------------------------------------------------
+Line 90:
+return _error('No file uploaded. Send multipart/form-data with field "file".', 400)
+-------------------------------------------------------
+Line 94:
+return _error('No file selected.', 400)
+-------------------------------------------------------
+Line 98:
+return _error(
+                f'Unsupported file type "{ext}". Please upload a .pptx or .pdf file.',
+                400,
+            )
+-------------------------------------------------------
+Line 126:
+return jsonify(result), 400
+-------------------------------------------------------
+Line 140:
+return _error(str(exc), 400)
+    except RuntimeError as exc:
+-------------------------------------------------------
+Line 143:
+return _error('Question generation is temporarily unavailable. Please try again.', 502)
+    except Exception:
+-------------------------------------------------------
+Line 146:
+return _error('Unexpected error during question generation.', 500)
+    finally:
+-------------------------------------------------------
+
+=======================================================
+FILE: phase_two.py
+=======================================================
+Line 139:
+return jsonify({
+                "error": "No file provided",
+                "message": "Please upload a file with key 'file'"
+            }), 400
+-------------------------------------------------------
+Line 147:
+return jsonify({
+                "error": "Empty file",
+                "message": "Please select a file to upload"
+            }), 400
+-------------------------------------------------------
+Line 157:
+return jsonify({
+                "error": "Unsupported file format",
+                "message": f"Supported formats for extraction: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
+            }), 400
+-------------------------------------------------------
+Line 178:
+return jsonify({
+                "error": "Invalid file signature",
+                "message": str(val_err)
+            }), 400
+-------------------------------------------------------
+Line 319:
+return jsonify({
+            "error": "Invalid JSON response from AI model",
+            "message": "The AI model returned malformed JSON. Please try again.",
+            "details": str(e)
+        }), 500
+-------------------------------------------------------
+Line 327:
+return jsonify({
+            "error": "Invalid input file",
+            "message": str(e)
+        }), 400
+-------------------------------------------------------
+Line 334:
+return jsonify({
+            "error": "Document analysis failed",
+            "message": "An error occurred while analyzing your document.",
+            "details": str(e)
+        }), 500
+-------------------------------------------------------
+Line 351:
+return jsonify({
+                "error": "Invalid request",
+                "message": "Missing JSON body"
+            }), 400
+-------------------------------------------------------
+Line 363:
+return jsonify({
+                "error": "Missing texts",
+                "message": "Both v1_text and v2_text must be provided for comparison"
+            }), 400
+-------------------------------------------------------
+Line 410:
+return jsonify({
+            "error": "Comparison failed",
+            "message": "An error occurred while comparing the two versions.",
+            "details": str(e)
+        }), 500
+-------------------------------------------------------
+
+=======================================================
+FILE: phase_four.py
+=======================================================
+Line 145:
+return jsonify({
+                "error": "Invalid JSON",
+                "message": "Request body must be valid JSON"
+            }), 400
+-------------------------------------------------------
+Line 151:
+return jsonify({
+                "error": "Missing or empty text field",
+                "message": "Please provide a 'text' field with transcribed speech"
+            }), 400
+-------------------------------------------------------
+Line 231:
+return jsonify({
+            "error": "Speech analysis failed",
+            "message": str(e)
+        }), 500
+-------------------------------------------------------
+Line 257:
+return jsonify({
+                "error": "No file provided",
+                "message": "Please upload an audio file with key 'file'"
+            }), 400
+-------------------------------------------------------
+Line 266:
+return jsonify({
+                "error": "Empty file",
+                "message": "Please select a file to upload"
+            }), 400
+-------------------------------------------------------
+Line 274:
+return jsonify({
+                "error": "Unsupported audio format",
+                "message": f"Supported audio formats: {', '.join(sorted(ALLOWED_AUDIO_EXTENSIONS))}"
+            }), 400
+-------------------------------------------------------
+Line 280:
+return jsonify({
+                "error": "Invalid duration",
+                "message": "Please provide a valid speaking duration in seconds"
+            }), 400
+-------------------------------------------------------
+Line 320:
+return jsonify({
+                "error": "No speech detected",
+                "message": "Whisper STT could not transcribe any speech. Please make sure the audio contains clear speaking."
+            }), 400
+-------------------------------------------------------
+Line 403:
+return jsonify({
+            "error": "Audio analysis failed",
+            "message": "An error occurred while transcribing or analyzing your audio",
+            "details": str(e)
+        }), 500
+-------------------------------------------------------
+
+=======================================================
+FILE: auth.py
+=======================================================
+Line 57:
+return jsonify({
+                "error": "Invalid JSON",
+                "message": "Request body must be valid JSON"
+            }), 400
+-------------------------------------------------------
+Line 68:
+return jsonify({
+                "error": "Missing fields",
+                "message": "Please provide name, email, and password"
+            }), 400
+-------------------------------------------------------
+Line 76:
+return jsonify({
+                "error": "Invalid email",
+                "message": "Please provide a valid email address"
+            }), 400
+-------------------------------------------------------
+Line 83:
+return jsonify({
+                "error": "Weak password",
+                "message": "Password must be at least 6 characters long"
+            }), 400
+-------------------------------------------------------
+Line 131:
+return jsonify({
+            "error": "Registration failed",
+            "message": "An error occurred during registration. Please try again.",
+            "details": str(e)
+        }), 500
+-------------------------------------------------------
+Line 170:
+return jsonify({
+                "error": "Invalid JSON",
+                "message": "Request body must be valid JSON"
+            }), 400
+-------------------------------------------------------
+Line 180:
+return jsonify({
+                "error": "Missing fields",
+                "message": "Please provide both email and password"
+            }), 400
+-------------------------------------------------------
+Line 189:
+return jsonify({
+                "error": "Invalid credentials",
+                "message": "Email not found or incorrect password"
+            }), 401
+-------------------------------------------------------
+Line 198:
+return jsonify({
+                "error": "Invalid credentials",
+                "message": "Email not found or incorrect password"
+            }), 401
+-------------------------------------------------------
+Line 225:
+return jsonify({
+            "error": "Login failed",
+            "message": "An error occurred during login. Please try again.",
+            "details": str(e)
+        }), 500
+-------------------------------------------------------
+Line 255:
+return jsonify({
+                "error": "Missing token",
+                "message": "Please provide 'id_token' in request body"
+            }), 400
+-------------------------------------------------------
+Line 262:
+return jsonify({
+                "error": "Empty token",
+                "message": "The provided id_token is empty"
+            }), 400
+-------------------------------------------------------
+Line 282:
+return jsonify({
+                    "error": "Unauthorized",
+                    "message": "Invalid or expired Firebase ID token. Please sign in again.",
+                    "details": str(ver_err)
+                }), 401
+-------------------------------------------------------
+Line 289:
+return jsonify({
+                "error": "Invalid token payload",
+                "message": "Could not parse Firebase ID token"
+            }), 401
+-------------------------------------------------------
+Line 304:
+return jsonify({
+                "error": "Invalid token payload",
+                "message": "Firebase token did not contain a valid uid"
+            }), 401
+-------------------------------------------------------
+Line 349:
+return jsonify({
+            "error": "Authentication failed",
+            "message": "An error occurred during Firebase authentication.",
+            "details": str(e)
+        }), 500
+-------------------------------------------------------
+Line 384:
+return jsonify({
+                "error": "User not found",
+                "message": "The user associated with this token no longer exists"
+            }), 401
+-------------------------------------------------------
+Line 398:
+return jsonify({
+            "error": "Failed to retrieve user",
+            "message": "An error occurred while fetching user information",
+            "details": str(e)
+        }), 500
+-------------------------------------------------------
+Line 421:
+return jsonify({
+            "error": "Failed to retrieve history",
+            "message": str(e)
+        }), 500
+-------------------------------------------------------
+Line 446:
+return jsonify({
+            "success": False,
+            "error": "RefreshFailed",
+            "message": f"Token refresh failed: {str(e)}"
+        }), 500
+-------------------------------------------------------
+Line 468:
+return jsonify({
+                "success": False,
+                "error": "TokenExpired",
+                "message": "Session expired. Please log in again."
+            }), 401
+-------------------------------------------------------
+Line 476:
+return jsonify({
+                "success": False,
+                "error": "InvalidToken",
+                "message": f"Invalid token: {error_string}"
+            }), 401
+-------------------------------------------------------
+Line 484:
+return jsonify({
+                "success": False,
+                "error": "Unauthorized",
+                "message": f"Authorization header missing or invalid: {error_string}"
+            }), 401
+-------------------------------------------------------
+Line 492:
+return jsonify({
+                "success": False,
+                "error": "TokenRevoked",
+                "message": "Token has been revoked."
+            }), 401
+-------------------------------------------------------
+Line 502:
+return jsonify({
+                "success": False,
+                "error": "Unauthorized",
+                "message": "Invalid or expired token. Please login again."
+            }), 401
+-------------------------------------------------------
+Line 510:
+return jsonify({
+                "success": False,
+                "error": "InvalidToken",
+                "message": "The token provided is invalid or malformed."
+            }), 422
+-------------------------------------------------------
+
+=======================================================
+FILE: phase_live.py
+=======================================================
+Line 1236:
+return jsonify({
+                "error": "Missing session ID",
+                "message": "Please provide a valid session_id"
+            }), 400
+-------------------------------------------------------
+Line 1245:
+return jsonify({
+                "error": "Session not found",
+                "message": "The requested session does not exist"
+            }), 404
+-------------------------------------------------------
+Line 1410:
+return jsonify({
+            "error": "Submission failed",
+            "message": str(e)
+        }), 500
+-------------------------------------------------------
+Line 1427:
+return jsonify({"error": "Missing topic"}), 400
+-------------------------------------------------------
+Line 1435:
+return jsonify({"error": str(e)}), 500
+-------------------------------------------------------
